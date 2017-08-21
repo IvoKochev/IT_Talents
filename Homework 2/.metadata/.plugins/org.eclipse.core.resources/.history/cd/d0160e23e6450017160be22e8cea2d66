@@ -1,0 +1,26 @@
+import java.util.Scanner;
+
+public class Task6 {
+
+	public static void main(String[] args) {
+		int number, sum = 0;
+		Scanner sc = new Scanner(System.in);
+		System.out.println("Enter the number: ");
+		number = sc.nextInt();
+		if(number > 1){
+			for(int i = 1; i<= number; i++){
+				sum += i;
+			}
+			System.out.println(sum);
+		} else if(number < 1){
+			for(int i = 1; i >= number; i--){
+				sum += i;
+			}
+			System.out.println(sum);
+		} else {
+			System.out.println("There are no number between 1 and your number!");
+		}
+
+	}
+
+}

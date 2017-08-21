@@ -1,0 +1,23 @@
+import java.util.Scanner;
+
+public class Task5 {
+
+	public static void main(String[] args) {
+		int firstNumber, secondNumber;
+		Scanner sc = new Scanner(System.in);
+		System.out.println("Enter the first number: ");
+		firstNumber = sc.nextInt();
+		System.out.println("Enter the seond number: ");
+		secondNumber = sc.nextInt();
+		if(firstNumber > secondNumber){
+		for(int i = firstNumber; i<=secondNumber; i++){
+			System.out.println(i);
+		}
+		} else {
+			System.out.println("The first number is higher than the second one!");
+		}
+		
+
+	}
+
+}

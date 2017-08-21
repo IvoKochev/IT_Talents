@@ -1,0 +1,25 @@
+import java.util.Scanner;
+
+public class Task24 {
+
+	public static void main(String[] args) {
+		int number, counter = 0, devisor = 10, x1, x2, x3, x4, x5;
+		boolean isFinished = true;
+		Scanner sc = new Scanner(System.in);
+		System.out.println("Enter your number: ");
+		number = sc.nextInt();
+		
+		do{
+			if(number / devisor != 0){
+				counter++;
+				devisor *= 10;
+			} else{
+				isFinished = false;
+			}
+		} while(isFinished);
+		System.out.println(counter);
+		
+
+	}
+
+}

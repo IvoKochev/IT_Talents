@@ -1,0 +1,23 @@
+import java.util.Scanner;
+
+public class Task8 {
+
+	public static void main(String[] args) {
+		int a, b, c;
+		Scanner sc = new Scanner(System.in);
+		System.out.println("Enter a number [1000-9999]");
+		a = sc.nextInt();
+		b = a%100;
+		c = a/100;
+		if(b>c){
+			System.out.println("The first number is bigger than the second.");
+		} else if(b==c){
+			System.out.println("The numbers are equal.");
+		} else{
+			System.out.println("The second number is bigger than the first.");
+		}
+		sc.close();
+
+	}
+
+}

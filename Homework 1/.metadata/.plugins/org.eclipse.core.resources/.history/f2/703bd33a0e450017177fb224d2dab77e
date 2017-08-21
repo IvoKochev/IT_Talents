@@ -1,0 +1,27 @@
+import java.util.Scanner;
+
+public class Task8 {
+
+	public static void main(String[] args) {
+		int a, firstFour, secondThird, firstNumber, secondNumber, thirdNumber, fourthNumber;
+		Scanner sc = new Scanner(System.in);
+		System.out.println("Enter a number [1000-9999]");
+		a = sc.nextInt();
+		firstNumber = a/1000;
+		fourthNumber = a%10;
+		firstFour = firstNumber*10 + fourthNumber;
+//		thirdNumber = a%100;
+//		secondThird = thirdNumber/10;
+//		if(firstFour>secondThird){
+//			System.out.println("The first number is bigger than the second.");
+//		} else if(firstFour==secondThird){
+//			System.out.println("The numbers are equal.");
+//		} else{
+//			System.out.println("The second number is bigger than the first.");
+//		}
+		System.out.println(firstFour);
+		sc.close();
+
+	}
+
+}

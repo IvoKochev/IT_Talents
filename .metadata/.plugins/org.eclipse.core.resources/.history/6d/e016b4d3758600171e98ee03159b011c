@@ -1,0 +1,331 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package bg.ittalents.boardGame.foxAndHounds;
+
+import bg.ittalents.boardGame.game.Board;
+import bg.ittalents.boardGame.game.Demo;
+import bg.ittalents.boardGame.game.Game;
+import bg.ittalents.boardGame.game.Level;
+import bg.ittalents.boardGame.game.Player;
+import bg.ittalents.boardGame.game.Robot;
+import java.util.ArrayList;
+
+/**
+ *
+ * @author slavi
+ */
+public final class FoxAndHounds extends Game {
+
+    private final ArrayList<Hound> hounds;
+    private int counter = 4;
+    private int currentMinRow = 0;
+
+    public FoxAndHounds(Player player1, Robot robot) {
+        super("Fox And Hounds", player1, robot);
+        this.hounds = new ArrayList<>(4);
+        System.out.println( this.getGameName());
+    }
+
+    @Override
+    protected void nextLevel() {
+        try {
+            throw new UnsupportedOperationException("Not supported yet game level.");
+        } catch (UnsupportedOperationException e) {
+            System.err.println(e);
+        }
+    }
+
+    @Override
+    protected void makeGame() {
+        this.setBoard(new Board(8, 8));
+        this.fillTheMatrix(this.getBoard().getMatrixx());
+
+    }
+
+    @Override
+    protected void play() {
+        this.makeGame();
+        this.printMatrix(this.getBoard().getMatrixx());
+
+        while (!isFoxWin() && isFoxTurn(this.getBoard().getMatrixx(), this.getCurrentRow(), this.getCurrentCol())) {
+            this.getPlayer1().makeMove(this.getBoard().getMatrixx(), this.playerMove(), "F");
+            this.getRobot().makeMove(this.getBoard().getMatrixx(), this.botMovee(), "H");
+
+            this.printMatrix(this.getBoard().getMatrixx());
+        }
+        if (!isFoxTurn(this.getBoard().getMatrixx(), this.getCurrentRow(), this.getCurrentCol())) {
+            this.gameOver();
+        } else {
+            System.out.println("Congratulations");
+        }
+        new Demo().loadMenu();
+    }
+
+    @Override
+    protected void setLevel(Level level) {
+        try {
+            throw new UnsupportedOperationException("Not supported yet game level");
+        } catch (UnsupportedOperationException e) {
+            System.err.println(e);
+        }
+    }
+
+    @Override
+    protected void gameOver() {
+        System.out.println("You lost!");
+    }
+
+    @Override
+    protected int[] playerMove() {
+        int row, col;
+        int[] coordinates = new int[2];
+        do {
+            row = this.getPlayer1().getRow();
+        } while (row < 1 || row > this.getBoard().getRowLength());
+        do {
+            col = this.getPlayer1().getCol();
+        } while (col < 1 || col > this.getBoard().getColLength());
+
+        if (this.getBoard().getMatrixx()[row - 1][col - 1].equals("B")) {
+            if (Math.abs((this.getCurrentRow() + 1) - row) == 1) {
+                if (Math.abs((this.getCurrentCol() + 1) - col) == 1) {
+                    this.getBoard().getMatrixx()[this.getCurrentRow()][this.getCurrentCol()] = "B";
+                    this.setCurrentRow(row - 1);
+                    this.setCurrentCol(col - 1);
+                    coordinates[0] = this.getCurrentRow();
+                    coordinates[1] = this.getCurrentCol();
+                    return coordinates;
+                }
+            }
+        }
+        return playerMove();
+    }
+
+    @Override
+    protected int[] botMovee() {
+        int[] coordinates = new int[2];
+        int minRange = 7;
+        int currentCol = 7;
+        int houndIndex = 0;
+        for (int i = 0; i < hounds.size(); i++) {
+
+            if (hounds.get(i).getRow() == this.currentMinRow) {
+
+                if (this.currentMinRow + 2 == this.getCurrentRow() && hounds.get(i).getCol() == this.getCurrentCol() && this.counter == 4) {
+                    currentCol = botMoveOptionOne()[0];
+                    houndIndex = botMoveOptionOne()[1];
+                    break;
+                }
+
+                if (this.currentMinRow + 2 == this.getCurrentRow() && hounds.get(i).getCol() == this.getCurrentCol() && this.counter != 4) {
+                    if (this.currentMinRow % 2 == 0) {
+                        currentCol = botMoveOptionSecond()[0];
+                        houndIndex = botMoveOptionSecond()[1];
+                        break;
+                    } else {
+                        currentCol = botMoveOptionThird()[0];
+                        houndIndex = botMoveOptionThird()[1];
+                        break;
+                    }
+                }
+                if (Math.abs(hounds.get(i).getCol() - this.getCurrentCol()) < minRange) {
+                    if (botMoveOptionFourth(i)) {
+                        continue;
+                    }
+                    minRange = Math.abs(hounds.get(i).getCol() - this.getCurrentCol());
+                    currentCol = hounds.get(i).getCol();
+                    houndIndex = i;
+                }
+            }
+        }
+
+        hounds.get(houndIndex).setRow(currentMinRow + 1);
+        this.getBoard().getMatrixx()[currentMinRow][currentCol] = "B";
+        this.counter--;
+
+        coordinates[0] = currentMinRow + 1;
+
+        if (this.currentMinRow % 2 == 0) {
+            hounds.get(houndIndex).setCol(currentCol - 1);
+            coordinates[1] = currentCol - 1;
+        } else {
+            hounds.get(houndIndex).setCol(currentCol + 1);
+            coordinates[1] = currentCol + 1;
+        }
+        if (this.counter == 0) {
+            this.counter = 4;
+            currentMinRow++;
+        }
+        return coordinates;
+    }
+
+    private int[] botMoveOptionOne() {
+        int[] returnParam = new int[2];
+        if (this.currentMinRow % 2 == 0) {
+            returnParam[0] = hounds.get(3).getCol();
+            returnParam[1] = 3;
+            return returnParam;
+        } else {
+            returnParam[0] = hounds.get(0).getCol();
+            returnParam[1] = 0;
+            return returnParam;
+        }
+    }
+
+    private int[] botMoveOptionSecond() {
+        int[] returnParam = new int[2];
+        if (hounds.get(3).getRow() == this.currentMinRow) {
+            returnParam[0] = hounds.get(3).getCol();
+            returnParam[1] = 3;
+            return returnParam;
+        }
+
+        if (hounds.get(2).getRow() == this.currentMinRow) {
+            returnParam[0] = hounds.get(2).getCol();
+            returnParam[1] = 2;
+            return returnParam;
+        }
+        if (hounds.get(1).getRow() == this.currentMinRow) {
+            returnParam[0] = hounds.get(1).getCol();
+            returnParam[1] = 1;
+            return returnParam;
+        }
+        if (hounds.get(0).getRow() == this.currentMinRow) {
+            returnParam[0] = hounds.get(0).getCol();
+            returnParam[1] = 0;
+            return returnParam;
+        }
+        return returnParam;
+    }
+
+    private int[] botMoveOptionThird() {
+        int[] returnParam = new int[2];
+        if (hounds.get(0).getRow() == this.currentMinRow) {
+            returnParam[0] = hounds.get(0).getCol();
+            returnParam[1] = 0;
+            return returnParam;
+        }
+        if (hounds.get(1).getRow() == this.currentMinRow) {
+            returnParam[0] = hounds.get(1).getCol();
+            returnParam[1] = 1;
+            return returnParam;
+        }
+        if (hounds.get(2).getRow() == this.currentMinRow) {
+            returnParam[0] = hounds.get(2).getCol();
+            returnParam[1] = 2;
+            return returnParam;
+        }
+        if (hounds.get(3).getRow() == this.currentMinRow) {
+            returnParam[0] = hounds.get(3).getCol();
+            returnParam[1] = 3;
+            return returnParam;
+        }
+        return returnParam;
+    }
+
+    private boolean botMoveOptionFourth(int i) {
+        if (this.counter > 2) {
+            if (this.currentMinRow + 1 == this.getCurrentRow() && (hounds.get(i).getCol() + 1 == this.getCurrentCol() || hounds.get(i).getCol() - 1 == this.getCurrentCol())) {
+                return true;
+            }
+        } else {
+
+            if (this.currentMinRow % 2 == 0) {
+
+                if (this.currentMinRow + 1 == this.getCurrentRow() && hounds.get(i).getCol() - 1 == this.getCurrentCol()) {
+                    return true;
+                }
+
+            } else {
+                if (this.currentMinRow + 1 == this.getCurrentRow() && hounds.get(i).getCol() + 1 == this.getCurrentCol()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    protected void printMatrix(String[][] matrix) {
+        System.out.print(" ");
+        for (int j = 0; j < matrix.length; j++) {
+            System.out.print(" " + (j + 1));
+        }
+        System.out.println();
+        for (int i = 0; i < matrix.length; i++) {
+            System.out.print(Board.ANSI_WHITE_BACKGROUND + (i + 1) + " ");
+            for (int j = 0; j < matrix.length; j++) {
+                if (matrix[i][j].equals("R")) {
+                    System.out.print(Board.ANSI_RED_BACKGROUND + "  ");
+                    continue;
+                }
+                if (matrix[i][j].equals("B")) {
+                    System.out.print(Board.ANSI_GOLD_BACKGROUND + "  ");
+                    continue;
+                }
+                if (matrix[i][j].equals("H")) {
+                    System.out.print(Board.ANSI_GREEN_BACKGROUND + "  ");
+                    continue;
+                }
+                if (matrix[i][j].equals("F")) {
+                    System.out.print(Board.ANSI_BLUE_BACKGROUND + "  ");
+                }
+            }
+            System.out.println();
+        }
+        System.out.println();
+    }
+
+    private void fillTheMatrix(String[][] matrix) {
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix.length; j++) {
+                if (i == 0 && j % 2 != 0) {
+                    matrix[i][j] = "H";
+                    this.hounds.add(new Hound("dog", i, j));
+                    continue;
+                }
+                if (i == matrix.length - 1 && j == matrix.length / 2) {
+                    matrix[i][j] = "F";
+                    this.setCurrentRow(i);
+                    this.setCurrentCol(j);
+                    continue;
+                }
+
+                if (i % 2 == 0) {
+                    if (j % 2 == 0) {
+                        matrix[i][j] = "R";
+                    } else {
+                        matrix[i][j] = "B";
+                    }
+                } else {
+                    if (j % 2 == 0) {
+                        matrix[i][j] = "B";
+                    } else {
+                        matrix[i][j] = "R";
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean isFoxWin() {
+        return this.getCurrentRow() < this.currentMinRow;
+    }
+
+    private boolean isFoxTurn(String[][] matrix, int row, int col) {
+        if (row < 0 || row >= matrix.length || col < 0 || col >= matrix.length) {
+            return false;
+        }
+        if (matrix[row][col].equals("H") || matrix[row][col].equals("R")) {
+            return false;
+        }
+        if (matrix[row][col].equals("B")) {
+            return true;
+        }
+        return isFoxTurn(matrix, row + 1, col + 1) || isFoxTurn(matrix, row + 1, col - 1)
+                || isFoxTurn(matrix, row - 1, col + 1) || isFoxTurn(matrix, row - 1, col - 1);
+    }
+}

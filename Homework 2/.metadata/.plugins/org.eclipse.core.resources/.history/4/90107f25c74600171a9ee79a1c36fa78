@@ -1,0 +1,56 @@
+import java.util.Scanner;
+
+public class Task21 {
+
+	public static void main(String[] args) {
+		int number, cnt = 0, flag=0;
+		Scanner sc = new Scanner(System.in);
+		System.out.println("Enter number [1-52]");
+		number = sc.nextInt();
+		cnt = number/4;
+		if (cnt == 0){
+			cnt+=2;
+		}
+		if(cnt ==1){
+			cnt+=1;
+		}
+		if (number > 0 && number < 53) {
+			for (int i =cnt; i < 15; i++) {
+				
+				for (int j = 0; j < 4; j++) {
+
+					if(flag == 0){
+						j = number%4;
+						flag =1 ;
+					}
+					if(i<11){
+						System.out.print(i + " ");
+					} else if(i == 11){
+						System.out.print("Vale ");
+					} else if(i ==12 ){
+						System.out.print("Dama ");
+					} else if(i ==13 ) {
+						System.out.print("Pop ");
+					} else if (i == 14) {
+						System.out.print("Aso ");
+					}
+					if(j == 0){
+						System.out.print("Spatiq,");
+					} else if(j == 1){
+						System.out.print("Karo,");
+					} else if(j == 2){
+						System.out.print("Kupa,");
+					} else if (j ==3){
+						System.out.print("Pika,");
+					}
+					
+				}
+			}
+			sc.close();
+			
+
+		}
+
+	}
+
+}

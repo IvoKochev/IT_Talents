@@ -1,0 +1,209 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package bg.ittalents.boardGame.game;
+
+import bg.ittalents.boardGame.amazingQuest.AmazingQuest;
+import bg.ittalents.boardGame.dotsAndBoxes.DotsAndBoxes;
+import bg.ittalents.boardGame.foxAndHounds.FoxAndHounds;
+import bg.ittalents.boardGame.mineSwaper.MineSweeper;
+import bg.ittalents.boardGame.seaChess.TicTacToE;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.net.URL;
+import java.util.logging.Logger;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.border.Border;
+
+/**
+ *
+ * @author slavi
+ */
+public final class Demo extends JFrame {
+
+    private static JPanel panel;
+    private static JButton mineSweeperBtn;
+    private static JButton seaChessBtn;
+    private static JButton foxAndHoundsBtn;
+    private static JButton dotsAndBoxesBtn;
+    private static JButton amazingQuestBtn;
+    private static JButton musicBtn;
+    private static JTextField p1Field;
+    private static JTextField p2Field;
+    private static Game newGame;
+    private static Clip clip;
+    private Border bevelBorder;
+    private Border raisedBevelBorder;
+    private static String name;
+    private static String oponentName;
+
+    class ImagePanel extends JComponent {
+
+        private final Image image;
+
+        public ImagePanel(Image image) {
+            this.image = image;
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            g.drawImage(image, 0, 0, this);
+        }
+    }
+
+    public Demo() {
+        panel = new JPanel();
+        playMusic();
+        loadMenu();
+        actionListener();
+    }
+
+    public void loadMenu() {
+
+        this.setTitle("Game Menu");
+        this.setSize(600, 470);
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setLocationRelativeTo(null);
+        this.setResizable(false);
+
+        mineSweeperBtn = new JButton("Mine Sweeper");
+        seaChessBtn = new JButton("Tic Tac Toe");
+        foxAndHoundsBtn = new JButton("Fox And Hounds");
+        dotsAndBoxesBtn = new JButton("Dots And Boxes");
+        amazingQuestBtn = new JButton("Amazing Quest");
+        musicBtn = new JButton();
+        p1Field = new JTextField("1 Player");
+        p2Field = new JTextField("2 Player");
+
+        musicBtn.setIcon(new ImageIcon(this.getClass().getClassLoader().getResource("resources/menu/images/soundBtn.png")));
+        JLabel bacgroundImage = new JLabel(new ImageIcon(this.getClass().getClassLoader().getResource("resources/menu/images/bacground.png")));
+
+        bevelBorder = BorderFactory.createBevelBorder(1);
+        raisedBevelBorder = BorderFactory.createRaisedBevelBorder();
+        musicBtn.setBorder(bevelBorder);
+        musicBtn.setBackground(Color.WHITE);
+        foxAndHoundsBtn.setBorder(raisedBevelBorder);
+        mineSweeperBtn.setBorder(raisedBevelBorder);
+        seaChessBtn.setBorder(raisedBevelBorder);
+        dotsAndBoxesBtn.setBorder(raisedBevelBorder);
+        amazingQuestBtn.setBorder(raisedBevelBorder);
+
+        foxAndHoundsBtn.setBackground(Color.white);
+        mineSweeperBtn.setBackground(Color.white);
+        seaChessBtn.setBackground(Color.white);
+        dotsAndBoxesBtn.setBackground(Color.white);
+        amazingQuestBtn.setBackground(Color.white);
+
+        panel.add(foxAndHoundsBtn);
+        panel.add(dotsAndBoxesBtn);
+        panel.add(mineSweeperBtn);
+        panel.add(seaChessBtn);
+        panel.add(amazingQuestBtn);
+        panel.add(musicBtn);
+        panel.add(bacgroundImage);
+        panel.setBackground(Color.BLACK);
+        panel.add(p1Field);
+        panel.add(p2Field);
+        this.add(panel, BorderLayout.CENTER);
+    }
+
+    private void actionListener() {
+        foxAndHoundsBtn.addActionListener((ActionEvent e) -> {
+            this.dispose();
+            clip.stop();
+            Demo.name = p1Field.getText();
+            Demo.oponentName = p2Field.getText();
+            newGame = new FoxAndHounds(new Player(name), new Robot(oponentName));
+            newGame.play();
+        });
+        dotsAndBoxesBtn.addActionListener((ActionEvent e) -> {
+            this.dispose();
+            clip.stop();
+            Demo.name = p1Field.getText();
+            Demo.oponentName = p2Field.getText();
+            newGame = new DotsAndBoxes(new Player(name), new Robot(oponentName), Level.LEVEL1);
+            newGame.play();
+        });
+        mineSweeperBtn.addActionListener((ActionEvent e) -> {
+            this.dispose();
+            clip.stop();
+            Demo.name = p1Field.getText();
+            Demo.oponentName = p2Field.getText();
+            newGame = new MineSweeper(new Player(name), Level.LEVEL1);
+            newGame.play();
+        });
+        seaChessBtn.addActionListener((ActionEvent e) -> {
+            this.dispose();
+            clip.stop();
+            Demo.name = p1Field.getText();
+            Demo.oponentName = p2Field.getText();
+            newGame = new TicTacToE(new Player(name), new Robot(oponentName), Level.LEVEL1);
+            newGame.play();
+        });
+        amazingQuestBtn.addActionListener((ActionEvent e) -> {
+            this.dispose();
+            clip.stop();
+            Demo.name = p1Field.getText();
+            Demo.oponentName = p2Field.getText();
+            JFrame amazingQuestFrame = new JFrame();
+            AmazingQuest aq = new AmazingQuest(name, oponentName);
+            amazingQuestFrame.add(aq);
+            amazingQuestFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            amazingQuestFrame.setSize(aq.getBoardWidth() + 50,
+                    aq.getBoardHeight() +  50);
+            amazingQuestFrame.setLocationRelativeTo(null);
+            amazingQuestFrame.setTitle("Amazing Quest");
+            amazingQuestFrame.setResizable(false);
+            amazingQuestFrame.setVisible(true);
+        });
+        musicBtn.addActionListener((ActionEvent e) -> {
+            if (clip.isActive()) {
+                musicBtn.setIcon(new ImageIcon(this.getClass().getClassLoader().getResource("resources/menu/images/muteSoundBtn.png")));
+                clip.stop();
+            } else {
+                clip.loop(Clip.LOOP_CONTINUOUSLY);
+                musicBtn.setIcon(new ImageIcon(this.getClass().getClassLoader().getResource("resources/menu/images/soundBtn.png")));
+                clip.start();
+            }
+        });
+    }
+
+    private void playMusic() {
+        try {
+            URL url = this.getClass().getClassLoader().getResource("resources/menu/sound/music.wav");
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(url);
+            clip = AudioSystem.getClip();
+            clip.open(audioIn);
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
+            clip.start();
+        } catch (IOException | LineUnavailableException e) {
+        } catch (UnsupportedAudioFileException ex) {
+            System.err.println("The audio file is not supported");
+            Logger.getLogger(Demo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+    }
+
+    public static void main(String[] args) {
+        Demo demo = new Demo();
+        demo.setVisible(true);
+    }
+}

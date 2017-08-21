@@ -1,0 +1,299 @@
+package bg.ittalents.boardGame.mineSwaper;
+
+import bg.ittalents.boardGame.game.Board;
+import bg.ittalents.boardGame.game.Demo;
+import bg.ittalents.boardGame.game.Level;
+import bg.ittalents.boardGame.game.Game;
+import bg.ittalents.boardGame.game.Player;
+
+/**
+ *
+ * @author slavi
+ */
+public final class MineSweeper extends Game {
+
+    private int numberOfMines;
+    private int leftMines;
+    private final String mineim = "\uD83D\uDCA3";
+    private final String userSquare = Board.ANSI_GOLD + "\u25A1" + Board.ANSI_BLACK;
+    private Board userBoard;
+    private final String flag = Board.ANSI_RED + "\u26F3" + Board.ANSI_BLACK;
+
+    public MineSweeper(Player player1, Level level) {
+        super("Mine Sweeper", player1);
+        this.setLevel(level);
+        System.out.println(Board.ANSI_RED + this.getGameName() + "     " + Board.ANSI_BLACK + "\n");
+    }
+
+    @Override
+    protected void nextLevel() {
+        if (this.getCurrentLevel().ordinal() < Level.values().length - 1) {
+            Level nextLevel = Level.values()[getCurrentLevel().ordinal() + 1];
+            System.out.println(nextLevel);
+            setLevel(nextLevel);
+            play();
+            return;
+        }
+        System.out.println("No more levels :)");
+    }
+
+    @Override
+    protected void makeGame() {
+        this.setCoordinates();
+        this.getBoard().getMatrixx()[this.getCurrentRow()][this.getCurrentCol()] = "0";
+        this.generateMines(this.getBoard().getMatrixx(), this.getBoard().getRowLength(), this.getBoard().getColLength(), this.numberOfMines);
+        this.generateTheNumberOfMinesAroundAllCells(this.getBoard().getMatrixx());
+        this.setUserBoard(this.makeUserMatrix(this.getBoard()));
+    }
+
+    @Override
+    protected void play() {
+        this.makeGame();
+        printMatrix(this.getUserBoard().getMatrixx());
+        int i = -1;
+
+        while (i == -1) {
+            i = changeUserMatrix(this.playerMove(), isFlag());
+        }
+        if (i == 0) {
+            this.nextLevel();
+        }
+    }
+
+    private boolean isFlag() {
+        System.out.print("(0 - FLAG) (1 - OPEN) = ");
+        while (!Game.input.hasNextInt()) {
+            System.out.print("(0 - FLAG) (1 - OPEN) = ");
+            Game.input.next();
+        }
+        return (Game.input.nextInt() == 0);
+    }
+
+    @Override
+    protected int[] playerMove() {
+        return setCoordinates();
+    }
+
+    @Override
+    protected void setLevel(Level level) {
+        this.setCurrentLevel(level);
+        switch (level) {
+            case LEVEL1:
+                this.setBoard(new Board(8, 8));
+                this.numberOfMines = 10;
+                this.leftMines = numberOfMines;
+                break;
+            case LEVEL2:
+                this.setBoard(new Board(16, 16));
+                this.numberOfMines = 40;
+                this.leftMines = numberOfMines;
+                break;
+            case LEVEL3:
+                this.setBoard(new Board(30, 16));
+                this.numberOfMines = 99;
+                this.leftMines = numberOfMines;
+                break;
+        }
+    }
+
+    @Override
+    protected void gameOver() {
+        System.out.println("Game Over");
+        this.printMatrix(this.getBoard().getMatrixx());
+        new Demo().loadMenu();
+    }
+
+    @Override
+    public void printMatrix(String[][] board) {
+        System.out.print("  ");
+        for (int i = 0; i < board[0].length; i++) {
+            System.out.format(" %-2s |", (i + 1));
+        }
+        System.out.println("\n");
+        for (int i = 0; i < board.length; i++) {
+            System.out.format("%-2s", (i + 1));
+            for (String item : board[i]) {
+                String leftAlginFormat;
+                if (item.equals(this.userSquare)) {
+                    leftAlginFormat = " %-2s  |";
+                } else {
+                    leftAlginFormat = " %-2s |";
+                }
+                System.out.format(leftAlginFormat, item);
+            }
+            System.out.println("\n");
+        }
+    }
+
+    private int[] setCoordinates() {
+        int row, col;
+        int[] coordinates = new int[2];
+        do {
+            row = this.getPlayer1().getRow();
+        } while (row < 1 || row > this.getBoard().getRowLength());
+        do {
+            col = this.getPlayer1().getCol();
+        } while (col < 1 || col > this.getBoard().getColLength());
+
+        this.setCurrentRow(row - 1);
+        this.setCurrentCol(col - 1);
+        coordinates[0] = this.getCurrentRow();
+        coordinates[1] = this.getCurrentCol();
+        return coordinates;
+    }
+
+    private void generateMines(String[][] matrix, int maxRows, int maxCols, int mines) {
+
+        while (mines > 0) {
+            int row = 0 + (int) (Math.random() * maxRows - 1);
+            int col = 0 + (int) (Math.random() * maxCols - 1);
+
+            if (matrix[row][col] == null) {
+                matrix[row][col] = "*";
+                mines--;
+            }
+
+        }
+        for (String[] matrix1 : matrix) {
+            for (int j = 0; j < matrix1.length; j++) {
+                if (matrix1[j] == null) {
+                    matrix1[j] = "0";
+                }
+            }
+        }
+    }
+
+    private void generateTheNumberOfMinesAroundAllCells(String[][] matrix) {
+
+        for (int row = 0; row < matrix.length; row++) {
+            for (int col = 0; col < matrix[row].length; col++) {
+                if (!matrix[row][col].equals("0")) {
+                    continue;
+                }
+                int minesInPerimeter = 0;
+                minesInPerimeter += theNumberOfMinesAroundACurrentCell(matrix, row - 1, col - 1);
+                minesInPerimeter += theNumberOfMinesAroundACurrentCell(matrix, row - 1, col);
+                minesInPerimeter += theNumberOfMinesAroundACurrentCell(matrix, row - 1, col + 1);
+                minesInPerimeter += theNumberOfMinesAroundACurrentCell(matrix, row, col - 1);
+                minesInPerimeter += theNumberOfMinesAroundACurrentCell(matrix, row, col + 1);
+                minesInPerimeter += theNumberOfMinesAroundACurrentCell(matrix, row + 1, col - 1);
+                minesInPerimeter += theNumberOfMinesAroundACurrentCell(matrix, row + 1, col);
+                minesInPerimeter += theNumberOfMinesAroundACurrentCell(matrix, row + 1, col + 1);
+
+                matrix[row][col] = Integer.toString(minesInPerimeter).trim();
+            }
+        }
+
+    }
+
+    private int theNumberOfMinesAroundACurrentCell(String[][] matrix, int row, int col) {
+        if (row < 0 || row >= matrix.length || col < 0 || col >= matrix[row].length) {
+            return 0;
+        }
+        if (matrix[row][col].equals("*")) {
+            return 1;
+        }
+        return 0;
+    }
+
+    private Board makeUserMatrix(Board board) {
+        Board userB = new Board(board.getMatrixx().length, board.getMatrixx()[0].length);
+
+        for (int i = 0; i < userB.getRowLength(); i++) {
+            for (int j = 0; j < userB.getColLength(); j++) {
+                if (i == this.getCurrentRow() && j == this.getCurrentCol()) {
+                    userB.getMatrixx()[i][j] = board.getMatrixx()[i][j].trim();
+                    continue;
+                }
+                userB.getMatrixx()[i][j] = this.userSquare;
+            }
+        }
+        return userB;
+    }
+
+    private void freeArea(int row, int col) {
+        if (!this.getUserBoard().getMatrixx()[row][col].equals(this.flag)) {
+            this.getUserBoard().getMatrixx()[row][col] = " ";
+        }
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                if (row + i != -1 && col + j != -1 && row + i < this.getBoard().getRowLength() && col + j < this.getBoard().getColLength()) {
+                    if (this.getBoard().getMatrixx()[row + i][col + j].equals("0")) {
+                        this.getBoard().getMatrixx()[row + i][col + j] = " ";
+                        freeArea(row + i, col + j);
+                    } else {
+                        if (this.getUserBoard().getMatrixx()[row + i][col + j].equals(this.flag)) {
+                            continue;
+                        }
+                        this.getUserBoard().getMatrixx()[row + i][col + j] = this.getBoard().getMatrixx()[row + i][col + j];
+                    }
+                }
+            }
+        }
+    }
+
+    private int changeUserMatrix(int[] coordinates, boolean isFlag) {
+        int row = coordinates[0];
+        int col = coordinates[1];
+
+        if (isFlag) {
+            this.getUserBoard().getMatrixx()[row][col] = this.flag;
+            this.printMatrix(this.getUserBoard().getMatrixx());
+            this.leftMines--;
+            System.out.println("Left mines " + this.leftMines);
+            return iSEndGame();
+        }
+        if (this.getBoard().getMatrixx()[row][col].equals("*")) {
+            this.getBoard().getMatrixx()[row][col] = Board.ANSI_RED + this.mineim + Board.ANSI_BLACK;
+            this.gameOver();
+            return 1;
+        } else if (!this.getBoard().getMatrixx()[row][col].equals("0")) {
+            if (this.getUserBoard().getMatrixx()[row][col].equals(this.flag)) {
+                this.leftMines++;
+            }
+            this.getUserBoard().getMatrixx()[row][col] = this.getBoard().getMatrixx()[row][col].trim();
+            this.printMatrix(this.getUserBoard().getMatrixx());
+            System.out.println("Left mines " + this.leftMines);
+            return iSEndGame();
+
+        } else if (this.getBoard().getMatrixx()[row][col].equals("0")) {
+            freeArea(row, col);
+            this.printMatrix(this.getUserBoard().getMatrixx());
+            System.out.println("Left mines " + this.leftMines);
+        }
+        return iSEndGame();
+    }
+
+    private int iSEndGame() {
+
+        for (String[] userBoard1 : this.getUserBoard().getMatrixx()) {
+            for (String userBoard11 : userBoard1) {
+                if (userBoard11.equals(this.userSquare)) {
+                    return -1;
+                }
+            }
+        }
+        if (this.leftMines == 0) {
+            return 0;
+        }
+
+        return -1;
+    }
+
+    private Board getUserBoard() {
+        return userBoard;
+    }
+
+    private void setUserBoard(Board userBoard) {
+        if (userBoard == null) {
+            System.err.println("Invalid user board");
+            return;
+        }
+        this.userBoard = userBoard;
+    }
+
+    @Override
+    protected int[] botMovee() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+}

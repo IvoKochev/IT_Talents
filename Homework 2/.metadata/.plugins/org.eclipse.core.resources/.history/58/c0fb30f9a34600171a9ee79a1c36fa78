@@ -1,0 +1,25 @@
+import java.util.Scanner;
+
+public class Task11 {
+
+	public static void main(String[] args) {
+		int number, cntLeft = 0, cntRight = 0;
+		Scanner sc = new Scanner(System.in);
+		System.out.println("Enter the number: ");
+		number = sc.nextInt();
+		for (int i=1; i<50; i += 2)
+		{
+		    for (int k=0; k < (4 - i / 2); k++)
+		    {
+		        System.out.print(" ");
+		    }
+		    for (int j=0; j<i; j++)
+		    {
+		        System.out.print("*");
+		    }
+		    System.out.println("");
+		}
+
+	}
+
+}

@@ -1,0 +1,621 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package bg.ittalents.boardGame.amazingQuest;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.Random;
+import javax.swing.ImageIcon;
+import javax.swing.JPanel;
+
+/**
+ *
+ * @author slavi
+ */
+public final class AmazingQuest extends JPanel {
+
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3531702886672216757L;
+	private final int LEFT_COLLISION = 1;
+    private final int RIGHT_COLLISION = 2;
+    private final int TOP_COLLISION = 3;
+    private final int BOTTOM_COLLISION = 4;
+    private final int SPACE = 30;
+    private final int OFFSET = 50;
+    private int width;
+    private int height;
+    private String playerDir;
+    private String oponentDir;
+    private Image playerImageDir;
+    private Image oponentImageDir;
+    private boolean isPlayerUp;
+    private boolean isPlayerDown;
+    private boolean isPlayerRight;
+    private boolean isPlayerLeft;
+    private boolean isOponentUp;
+    private boolean isOponentDown;
+    private boolean isOponentRight;
+    private boolean isOponentLeft;
+    private final String name;
+    private final String oponentName;
+    private int xAreaP1;
+    private int xAreaP2;
+    private int yAreaP1;
+    private int yAreaP2;
+    private boolean compleate;
+
+    private final ArrayList<Wall> walls = new ArrayList<>();
+    private final ArrayList<Area> areas = new ArrayList<>();
+    private final ArrayList<Frame> frames = new ArrayList<>();
+    private Player player;
+    private Player oponent;
+//              "***********************\n"
+//            + "*#### ##### ##### ####*\n"
+//            + "*#  # #   # #   # #  #*\n"
+//            + "*# ## ## ## ## ## ## #*\n"
+//            + "*####### ## ##### ## #*\n"
+//            + "*        #  #   #    #*\n"
+//            + "*#### ## #############*\n"
+//            + "*# ## ######## ## ## #*\n"
+//            + "*#    #        #  #  #*\n"
+//            + "*# ## ## ##### ##### #*\n"
+//            + "*#### ## ## ##########*\n"
+//            + "*   # ##        #  #  *\n"
+//            + "*#### ########### ## #*\n"
+//            + "*# ## ## ## ## ##### #*\n"
+//            + "*#  # ##  #       #  #*\n"
+//            + "*# ## ## ## ##### ## #*\n"
+//            + "*# ######## ## ## ####*\n"
+//            + "*#    #  ## ##        *\n"
+//            + "*#### ## ## ##########*\n"
+//            + "*# ##### ## ## ##### #*\n"
+//            + "*#@ #       #     #  #*\n"
+//            + "*#### ########### ####*\n"
+//            + "***********************\n";
+    private final String[] direction;
+    private final String[][] matrix = {
+        {"*", "*", "*", "*", "*", "*", "*", "*", "*", "*", "*", "*", "*", "*", "*", "*", "*", "*", "*", "*", "*", "*", "*", "\n"},
+        {"*", "%", "#", "#", "#", " ", "#", "#", "#", "#", "#", " ", "#", "#", "#", "#", "#", " ", "#", "#", "#", "!", "*", "\n"},
+        {"*", "#", " ", " ", "#", " ", "#", " ", " ", " ", "#", " ", "#", " ", " ", " ", "#", " ", "#", " ", " ", "#", "*", "\n"},
+        {"*", "#", " ", "#", "#", " ", "#", "#", " ", "#", "#", " ", "#", "#", " ", "#", "#", " ", "#", "#", " ", "#", "*", "\n"},
+        {"*", "#", "#", "#", "#", "#", "#", "#", " ", "#", "#", " ", "#", "#", "#", "#", "#", " ", "#", "#", " ", "#", "*", "\n"},
+        {"*", " ", " ", " ", " ", " ", " ", " ", " ", "#", " ", " ", "#", " ", " ", " ", "#", " ", " ", " ", " ", "#", "*", "\n"},
+        {"*", "#", "#", "#", "#", " ", "#", "#", " ", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "*", "\n"},
+        {"*", "#", " ", "#", "#", " ", "#", "#", "#", "#", "#", "#", "#", "#", " ", "#", "#", " ", "#", "#", " ", "#", "*", "\n"},
+        {"*", "#", " ", " ", " ", " ", "#", " ", " ", " ", " ", " ", " ", " ", " ", "#", " ", " ", "#", " ", " ", "#", "*", "\n"},
+        {"*", "#", " ", "#", "#", " ", "#", "#", " ", "#", "#", "#", "#", "#", " ", "#", "#", "#", "#", "#", " ", "#", "*", "\n"},
+        {"*", "#", "#", "#", "#", " ", "#", "#", " ", "#", "#", " ", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "*", "\n"},
+        {"*", " ", " ", " ", "#", " ", "#", "#", " ", " ", " ", " ", " ", " ", " ", " ", "#", " ", " ", "#", " ", " ", "*", "\n"},
+        {"*", "#", "#", "#", "#", " ", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", " ", "#", "#", " ", "#", "*", "\n"},
+        {"*", "#", " ", "#", "#", " ", "#", "#", " ", "#", "#", " ", "#", "#", " ", "#", "#", "#", "#", "#", " ", "#", "*", "\n"},
+        {"*", "#", " ", " ", "#", " ", "#", "#", " ", " ", "#", " ", " ", " ", " ", " ", " ", " ", "#", " ", " ", "#", "*", "\n"},
+        {"*", "#", " ", "#", "#", " ", "#", "#", " ", "#", "#", " ", "#", "#", "#", "#", "#", " ", "#", "#", " ", "#", "*", "\n"},
+        {"*", "#", " ", "#", "#", "#", "#", "#", "#", "#", "#", " ", "#", "#", " ", "#", "#", " ", "#", "#", "#", "#", "*", "\n"},
+        {"*", "#", " ", " ", " ", " ", "#", " ", " ", "#", "#", " ", "#", "#", " ", " ", " ", " ", " ", " ", " ", " ", "*", "\n"},
+        {"*", "#", "#", "#", "#", " ", "#", "#", " ", "#", "#", " ", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "*", "\n"},
+        {"*", "#", " ", "#", "#", "#", "#", "#", " ", "#", "#", " ", "#", "#", " ", "#", "#", "#", "#", "#", " ", "#", "*", "\n"},
+        {"*", "#", "@", " ", "#", " ", " ", " ", " ", " ", " ", " ", "#", " ", " ", " ", " ", " ", "#", " ", "^", "#", "*", "\n"},
+        {"*", "#", "#", "#", "#", " ", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", " ", "#", "#", "#", "#", "*", "\n"},
+        {"*", "*", "*", "*", "*", "*", "*", "*", "*", "*", "*", "*", "*", "*", "*", "*", "*", "*", "*", "*", "*", "*", "*", "\n"},};
+
+    public AmazingQuest(String name, String oponentName) {
+        this.direction = new String[]{"LR", "UD", "DL", "DR", "UL", "UR", "UDR", "UDL", "LRU", "LRD", "LRUD", "X"};
+        this.name = name;
+        this.oponentName = oponentName;
+        playerDir = direction[generateDirectionIndex()];
+        oponentDir = direction[generateDirectionIndex()];
+        playerImageDir = getImageDir(playerDir);
+        oponentImageDir = getImageDir(oponentDir);
+        addKeyListener(new TAdapter());
+        setFocusable(true);
+        inItWorld();
+    }
+
+    final void inItWorld() {
+        int x = OFFSET;
+        int y = OFFSET;
+
+        for (String[] matrix1 : matrix) {
+            for (int j = 0; j < matrix[0].length; j++) {
+                char item = matrix1[j].charAt(0);
+                switch (item) {
+                    case '\n':
+                        if (this.width < x) {
+                            this.width = x;
+                        }
+                        y += SPACE;
+                        x = OFFSET;
+                        break;
+                    case '#':
+                        walls.add(new Wall(x, y));
+                        x += SPACE;
+                        break;
+                    case '*':
+                        frames.add(new Frame(x, y));
+                        x += SPACE;
+                        break;
+                    case ' ':
+                        x += SPACE;
+                        break;
+                    case '@':
+                        player = new Player(x, y, "resources/amazingQuestMapImgs/actors/minion.png");
+                        x += SPACE;
+                        break;
+                    case '^':
+                        oponent = new Player(x, y, "resources/amazingQuestMapImgs/actors/vector.png");
+                        x += SPACE;
+                        break;
+                    case '%':
+                        areas.add(new Area(x, y));
+                        xAreaP2 = x;
+                        yAreaP2 = y;
+                        x += SPACE;
+                        break;
+                    case '!':
+                        areas.add(new Area(x, y));
+                        xAreaP1 = x;
+                        yAreaP1 = y;
+                        x += SPACE;
+                        break;
+                    default:
+                        break;
+                }
+                this.height = y;
+            }
+        }
+
+    }
+
+    void buildWorld(Graphics g) {
+
+        g.setColor(new Color(250, 240, 170));
+        g.fillRect(0, 0, this.getWidth(), this.getHeight());
+
+        ArrayList<Component> world = new ArrayList();
+        world.addAll(walls);
+        world.addAll(areas);
+        world.addAll(frames);
+        world.add(player);
+        world.add(oponent);
+
+        if (isCompleate() == 1) {
+            oponentImageDir = null;
+            playerImageDir = null;
+            g.setColor(new Color(0, 0, 0));
+            g.setFont(new Font("TimesRoman", Font.PLAIN, 20));
+            g.drawString(name + " WIN !!!", 280, 20);
+        }
+        if (isCompleate() == 2) {
+            oponentImageDir = null;
+            playerImageDir = null;
+            g.setColor(new Color(0, 0, 0));
+            g.setFont(new Font("TimesRoman", Font.PLAIN, 20));
+            g.drawString(oponentName + " WIN !!!", 280, 20);
+        }
+
+        g.drawImage(playerImageDir, OFFSET + 250, 5, this);
+        g.drawImage(oponentImageDir, this.getBoardWidth() - OFFSET - 250, 5, this
+        );
+        for (int i = 0; i < world.size(); i++) {
+
+            Component item = (Component) world.get(i);
+            g.drawImage(item.getImage(), item.getX(), item.getY(), this);
+        }
+        g.setColor(new Color(0, 0, 0));
+        g.setFont(new Font("TimesRoman", Font.PLAIN, 20));
+        g.drawString(name, 50, 770);
+        g.drawString(oponentName, this.getBoardWidth() - oponentName.length() * 11, 770);
+
+        g.setColor(Color.red);
+        g.drawString(name.substring(0, 1), xAreaP1 + 8, yAreaP1 + 22);
+        g.drawString(oponentName.substring(0, 1), xAreaP2 + 8, yAreaP2 + 22);
+
+    }
+
+    public int getBoardWidth() {
+        return width;
+    }
+
+    public int getBoardHeight() {
+        return height;
+    }
+
+    @Override
+    public void paint(Graphics g) {
+        super.paint(g);
+        buildWorld(g);
+    }
+
+    class TAdapter extends KeyAdapter {
+
+        @Override
+        public void keyPressed(KeyEvent e) {
+            if (compleate) {
+                return;
+            }
+            int key = e.getKeyCode();
+            switch (key) {
+                case KeyEvent.VK_A:
+                    isPlayerUp = false;
+                    isPlayerDown = false;
+                    isPlayerRight = false;
+                    isPlayerLeft = true;
+                    if (checkWallCollision(player,
+                            LEFT_COLLISION)) {
+                        return;
+                    }
+                    player.move(-SPACE, 0);
+                    break;
+                case KeyEvent.VK_LEFT:
+                    isOponentUp = false;
+                    isOponentDown = false;
+                    isOponentRight = false;
+                    isOponentLeft = true;
+                    if (checkWallCollision(oponent,
+                            LEFT_COLLISION)) {
+                        return;
+                    }
+                    oponent.move(-SPACE, 0);
+                    break;
+                case KeyEvent.VK_D:
+                    isPlayerUp = false;
+                    isPlayerDown = false;
+                    isPlayerRight = true;
+                    isPlayerLeft = false;
+                    if (checkWallCollision(player,
+                            RIGHT_COLLISION)) {
+                        return;
+                    }
+                    player.move(SPACE, 0);
+                    break;
+                case KeyEvent.VK_RIGHT:
+                    isOponentUp = false;
+                    isOponentDown = false;
+                    isOponentRight = true;
+                    isOponentLeft = false;
+                    if (checkWallCollision(oponent,
+                            RIGHT_COLLISION)) {
+                        return;
+                    }
+                    oponent.move(SPACE, 0);
+                    break;
+                case KeyEvent.VK_W:
+                    isPlayerUp = true;
+                    isPlayerDown = false;
+                    isPlayerRight = false;
+                    isPlayerLeft = false;
+                    if (checkWallCollision(player,
+                            TOP_COLLISION)) {
+                        return;
+                    }
+                    player.move(0, -SPACE);
+                    break;
+                case KeyEvent.VK_UP:
+                    isOponentUp = true;
+                    isOponentDown = false;
+                    isOponentRight = false;
+                    isOponentLeft = false;
+                    if (checkWallCollision(oponent,
+                            TOP_COLLISION)) {
+                        return;
+                    }
+                    oponent.move(0, -SPACE);
+                    break;
+                case KeyEvent.VK_S:
+                    isPlayerUp = false;
+                    isPlayerDown = true;
+                    isPlayerRight = false;
+                    isPlayerLeft = false;
+                    if (checkWallCollision(player,
+                            BOTTOM_COLLISION)) {
+                        return;
+                    }
+                    player.move(0, SPACE);
+                    break;
+                case KeyEvent.VK_DOWN:
+                    isOponentUp = false;
+                    isOponentDown = true;
+                    isOponentRight = false;
+                    isOponentLeft = false;
+                    if (checkWallCollision(oponent,
+                            BOTTOM_COLLISION)) {
+                        return;
+                    }
+                    oponent.move(0, SPACE);
+                    break;
+                case KeyEvent.VK_H:
+                    playerPush();
+                    playerDir = "";
+                    playerImageDir = null;
+                    break;
+                case KeyEvent.VK_ENTER:
+                    oponentPush();
+                    oponentDir = "";
+                    oponentImageDir = null;
+                    break;
+                case KeyEvent.VK_G:
+                    playerDir = direction[generateDirectionIndex()];
+                    playerImageDir = getImageDir(playerDir);
+                    break;
+                case KeyEvent.VK_NUMPAD3:
+                    oponentDir = direction[generateDirectionIndex()];
+                    oponentImageDir = getImageDir(oponentDir);
+                    break;
+                default:
+                    break;
+            }
+            repaint();
+        }
+    }
+
+    private boolean checkWallCollision(Component component, int type) {
+
+        switch (type) {
+            case LEFT_COLLISION:
+                for (int i = 0; i < walls.size(); i++) {
+                    Wall wall = (Wall) walls.get(i);
+                    if (component.isLeftCollision(wall)) {
+                        return true;
+                    }
+                }
+                for (int i = 0; i < frames.size(); i++) {
+                    Frame frame = (Frame) frames.get(i);
+                    if (component.isLeftCollision(frame)) {
+                        return true;
+                    }
+                }
+                return false;
+            case RIGHT_COLLISION:
+                for (int i = 0; i < walls.size(); i++) {
+                    Wall wall = (Wall) walls.get(i);
+                    if (component.isRightCollision(wall)) {
+                        return true;
+                    }
+                }
+                for (int i = 0; i < frames.size(); i++) {
+                    Frame frame = (Frame) frames.get(i);
+                    if (component.isRightCollision(frame)) {
+                        return true;
+                    }
+                }
+                return false;
+            case TOP_COLLISION:
+                for (int i = 0; i < walls.size(); i++) {
+                    Wall wall = (Wall) walls.get(i);
+                    if (component.isTopCollision(wall)) {
+                        return true;
+                    }
+                }
+                for (int i = 0; i < frames.size(); i++) {
+                    Frame frame = (Frame) frames.get(i);
+                    if (component.isTopCollision(frame)) {
+                        return true;
+                    }
+                }
+                return false;
+            case BOTTOM_COLLISION:
+                for (int i = 0; i < walls.size(); i++) {
+                    Wall wall = (Wall) walls.get(i);
+                    if (component.isBottomCollision(wall)) {
+                        return true;
+                    }
+                }
+                for (int i = 0; i < frames.size(); i++) {
+                    Frame frame = (Frame) frames.get(i);
+                    if (component.isBottomCollision(frame)) {
+                        return true;
+                    }
+                }
+                return false;
+            default:
+                break;
+        }
+        return false;
+    }
+
+    private boolean checkBagCollision(Component actor, int type, boolean isX) {
+
+        switch (type) {
+            case LEFT_COLLISION:
+                for (int i = 0; i < walls.size(); i++) {
+
+                    Wall wall = (Wall) walls.get(i);
+                    if (actor.isLeftCollision(wall)) {
+                        if (isX) {
+                            walls.remove(i);
+                            return true;
+                        }
+                        for (int j = 0; j < walls.size(); j++) {
+                            Wall item = (Wall) walls.get(j);
+                            if (!wall.equals(item)) {
+                                if (wall.isLeftCollision(item)) {
+                                    return true;
+                                }
+                            }
+                        }
+                        for (int j = 0; j < frames.size(); j++) {
+                            Frame item = (Frame) frames.get(j);
+                            if (wall.isLeftCollision(item)) {
+                                return true;
+                            }
+
+                        }
+                        wall.move(-SPACE, 0);
+                    }
+                }
+                return false;
+            case RIGHT_COLLISION:
+                for (int i = 0; i < walls.size(); i++) {
+
+                    Wall wall = (Wall) walls.get(i);
+                    if (actor.isRightCollision(wall)) {
+                        if (isX) {
+                            walls.remove(i);
+                            return true;
+                        }
+                        for (int j = 0; j < walls.size(); j++) {
+                            Wall item = (Wall) walls.get(j);
+                            if (!wall.equals(item)) {
+                                if (wall.isRightCollision(item)) {
+                                    return true;
+                                }
+                            }
+                        }
+                        for (int j = 0; j < frames.size(); j++) {
+                            Frame item = (Frame) frames.get(j);
+                            if (wall.isRightCollision(item)) {
+                                return true;
+                            }
+
+                        }
+                        wall.move(SPACE, 0);
+                    }
+                }
+                return false;
+            case TOP_COLLISION:
+                for (int i = 0; i < walls.size(); i++) {
+
+                    Wall wall = (Wall) walls.get(i);
+                    if (actor.isTopCollision(wall)) {
+                        if (isX) {
+                            walls.remove(i);
+                            return true;
+                        }
+                        for (int j = 0; j < walls.size(); j++) {
+                            Wall item = (Wall) walls.get(j);
+                            if (!wall.equals(item)) {
+                                if (wall.isTopCollision(item)) {
+                                    return true;
+                                }
+                            }
+                        }
+                        for (int j = 0; j < frames.size(); j++) {
+                            Frame item = (Frame) frames.get(j);
+                            if (wall.isTopCollision(item)) {
+                                return true;
+                            }
+
+                        }
+                        wall.move(0, -SPACE);
+                    }
+                }
+
+                return false;
+            case BOTTOM_COLLISION:
+                for (int i = 0; i < walls.size(); i++) {
+
+                    Wall wall = (Wall) walls.get(i);
+                    if (actor.isBottomCollision(wall)) {
+                        if (isX) {
+                            walls.remove(i);
+                            return true;
+                        }
+                        for (int j = 0; j < walls.size(); j++) {
+                            Wall item = (Wall) walls.get(j);
+                            if (!wall.equals(item)) {
+                                if (wall.isBottomCollision(item)) {
+                                    return true;
+                                }
+                            }
+                        }
+                        for (int j = 0; j < frames.size(); j++) {
+                            Frame item = (Frame) frames.get(j);
+                            if (wall.isBottomCollision(item)) {
+                                return true;
+                            }
+
+                        }
+                        wall.move(0, SPACE);
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+
+        return false;
+    }
+
+    private int generateDirectionIndex() {
+        return new Random().nextInt(12);
+    }
+
+    private Image getImageDir(String dir) {
+        ImageIcon ii = new ImageIcon(this.getClass().getClassLoader().getResource("resources/amazingQuestMapImgs/arrows/" + dir + ".png"));
+        return ii.getImage();
+    }
+
+    private void playerPush() {
+        if (playerDir == null || playerDir.equals("")) {
+            return;
+        }
+
+        if (isPlayerLeft && playerDir.contains("L")) {
+            checkBagCollision(player, LEFT_COLLISION, false);
+        } else if (isPlayerRight && playerDir.contains("R")) {
+            checkBagCollision(player, RIGHT_COLLISION, false);
+        } else if (isPlayerUp && playerDir.contains("U")) {
+            checkBagCollision(player, TOP_COLLISION, false);
+        } else if (isPlayerDown && playerDir.contains("D")) {
+            checkBagCollision(player, BOTTOM_COLLISION, false);
+        } else if (playerDir.contains("X")) {
+            if (isPlayerLeft) {
+                checkBagCollision(player, LEFT_COLLISION, true);
+            } else if (isPlayerRight) {
+                checkBagCollision(player, RIGHT_COLLISION, true);
+            } else if (isPlayerUp) {
+                checkBagCollision(player, TOP_COLLISION, true);
+            } else if (isPlayerDown) {
+                checkBagCollision(player, BOTTOM_COLLISION, true);
+            }
+        }
+    }
+
+    private void oponentPush() {
+        if (oponentDir == null || oponentDir.equals("")) {
+            return;
+        }
+
+        if (isOponentLeft && oponentDir.contains("L")) {
+            checkBagCollision(oponent, LEFT_COLLISION, false);
+        } else if (isOponentRight && oponentDir.contains("R")) {
+            checkBagCollision(oponent, RIGHT_COLLISION, false);
+        } else if (isOponentUp && oponentDir.contains("U")) {
+            checkBagCollision(oponent, TOP_COLLISION, false);
+        } else if (isOponentDown && oponentDir.contains("D")) {
+            checkBagCollision(oponent, BOTTOM_COLLISION, false);
+        } else if (oponentDir.contains("X")) {
+            if (isOponentLeft) {
+                checkBagCollision(oponent, LEFT_COLLISION, true);
+            } else if (isOponentRight) {
+                checkBagCollision(oponent, RIGHT_COLLISION, true);
+            } else if (isOponentUp) {
+                checkBagCollision(oponent, TOP_COLLISION, true);
+            } else if (isOponentDown) {
+                checkBagCollision(oponent, BOTTOM_COLLISION, true);
+            }
+        }
+    }
+
+    private int isCompleate() {
+        if (player.getX() == xAreaP1 && player.getY() == yAreaP1) {
+            compleate = true;
+            return 1;
+        }
+        if (oponent.getX() == xAreaP2 && oponent.getY() == yAreaP2) {
+            compleate = true;
+            return 2;
+        }
+        return 0;
+    }
+}
